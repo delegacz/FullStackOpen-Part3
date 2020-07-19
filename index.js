@@ -24,8 +24,14 @@ let persons = [
         "id": 4
       }
 ]
+
 app.get('/', (request, response) => {
-    response.send('<h1>Hello World</h1>')
+    response.send(`<h1>Hello World</h1>`)
+})
+
+app.get('/info', (request, response) => {
+    let date = new Date()
+    response.send(`Phonebook has records for ${persons.length} people <br> ${date}`)
 })
 
 app.get('/api/persons', (request, response) => {
