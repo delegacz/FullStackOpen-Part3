@@ -44,6 +44,7 @@ app.get('/info', (request, response) => {
 app.get('/api/persons', (request, response) => {
     response.json(persons)
 })
+
 app.get('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     const person = persons.find(person => person.id === id)
@@ -54,18 +55,27 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
+app.post('/api/persons/', (request, response)=> {
+    const person = request.body
+    const name = request.body.name
+    const number = request.body.number
+    const match = persons.find(p => p.name == name || p.number == number)
+    if (match) {
+       return response.status(400).json({error: 'Name and number must be unique'})
+    } else {
+        console.log(person)
+        person.id = generateID()
+        persons = persons.concat(person)
+        response.json(person)
+    }
+})
+
 app.delete('/api/persons/:id', (request, response) => {
     const id = Number(request.params.id)
     persons = persons.filter(person => person.id !== id)
     response.status(204).end()
 })
-app.post('/api/persons/', (request, response)=> {
-    const person = request.body
-    person.id = generateID()
-    console.log(person.id)
-    persons = persons.concat(person)
-    response.json(person)
-})
+
 const PORT = 3001
 
 app.listen(PORT, () => {
