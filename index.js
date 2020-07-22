@@ -6,8 +6,17 @@ app.use(express.json())
 
 
 
-app.use(morgan('tiny'))
-
+//app.use(morgan((res,req) => { return JSON.stringify(req.body) }))
+app.use(morgan(function (tokens, req, res) {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, 'content-length'), '-',
+      tokens['response-time'](req, res), 'ms',
+      JSON.stringify(req.body)
+    ].join(' ')
+  }))
 
 
 let persons = [
@@ -70,7 +79,6 @@ app.post('/api/persons/', (request, response)=> {
     if (match) {
        return response.status(400).json({error: 'Name and number must be unique'})
     } else {
-        console.log(person)
         person.id = generateID()
         persons = persons.concat(person)
         response.json(person)
