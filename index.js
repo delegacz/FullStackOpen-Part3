@@ -19,8 +19,9 @@ app.use(morgan(function (tokens, req, res) {
     ].join(' ')
 }))
 
+const Person = require('./models/person');
 
-let persons = [
+/*let persons = [
     { 
         "name": "Arto Hellas", 
         "number": "040-123456",
@@ -42,7 +43,7 @@ let persons = [
         "id": 4
       }
 ]
-
+*/
 const generateID = () => {
     
     return Math.floor(Math.random()*Math.floor(10000))
@@ -59,7 +60,9 @@ app.get('/info', (request, response) => {
 })
 
 app.get('/api/persons', (request, response) => {
-    response.json(persons)
+    Person.find({}).then(person => {
+        response.json(person)
+    })
 })
 
 app.get('/api/persons/:id', (request, response) => {
