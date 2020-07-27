@@ -21,6 +21,7 @@ app.use(morgan(function (tokens, req, res) {
 
 const Person = require('./models/person');
 const { mongoose } = require('mongoose')
+const person = require('./models/person')
 
 /*let persons = [
     { 
@@ -77,7 +78,6 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons/', (request, response)=> {
-
     const pname = request.body.name
     const pnumber = request.body.number
     const person = new Person({
@@ -88,19 +88,17 @@ app.post('/api/persons/', (request, response)=> {
     person.save().then(savedPerson => savedPerson.toJSON()).then(savedPersoninJSON => {
         response.json(savedPersoninJSON)
         console.log('entry saved to databse')
-    })
-        
-        
+    })                
 })
 
 app.delete('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    persons = persons.filter(person => person.id !== id)
-    response.status(204).end()
+    Person.findByIdAndRemove(request.params.id).then(result=>{
+        response.status(204).end()
+        console.log(request.params.id) 
+    })
 })
 
 const PORT = process.env.PORT || 3001
-
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 }) 
