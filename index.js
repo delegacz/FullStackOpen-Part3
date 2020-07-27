@@ -20,6 +20,7 @@ app.use(morgan(function (tokens, req, res) {
 }))
 
 const Person = require('./models/person');
+const { mongoose } = require('mongoose')
 
 /*let persons = [
     { 
@@ -76,17 +77,20 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.post('/api/persons/', (request, response)=> {
-    const person = request.body
-    const name = request.body.name
-    const number = request.body.number
-    const match = persons.find(p => p.name == name || p.number == number)
-    if (match) {
-       return response.status(400).json({error: 'Name and number must be unique'})
-    } else {
-        person.id = generateID()
-        persons = persons.concat(person)
-        response.json(person)
-    }
+
+    const pname = request.body.name
+    const pnumber = request.body.number
+    const person = new Person({
+        name: pname,
+        number: pnumber,
+        id: generateID()
+    })
+    person.save().then(savedPerson => savedPerson.toJSON()).then(savedPersoninJSON => {
+        response.json(savedPersoninJSON)
+        console.log('entry saved to databse')
+    })
+        
+        
 })
 
 app.delete('/api/persons/:id', (request, response) => {
