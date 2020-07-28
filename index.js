@@ -2,10 +2,12 @@ const express = require('express')
 const { response, request } = require('express')
 const app = express()
 const morgan = require('morgan')
+
+app.use(express.static('build'))
 app.use(express.json())
 
 const cors = require('cors')
-app.use(express.static('build'))
+
 
 app.use(cors())
 app.use(morgan(function (tokens, req, res) {
@@ -23,6 +25,26 @@ const Person = require('./models/person');
 const { mongoose } = require('mongoose')
 const person = require('./models/person')
 
+//Error Next Middleware
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+    if(error.name === 'CastError') {
+        return response.status(400).send({error: 'malformatted id'})
+    }
+    next(error)
+}
+app.use(errorHandler)
+
+
+/*Checking for if user exists in db*/
+const alreadyExist = (name, request) => {
+    if(name===request.body.name) {
+        console.log(request.body.name, 'exists')
+        return true
+    }else{
+        return false
+    }
+}
 /*let persons = [
     { 
         "name": "Arto Hellas", 
@@ -47,9 +69,7 @@ const person = require('./models/person')
 ]
 */
 const generateID = () => {
-    
     return Math.floor(Math.random()*Math.floor(10000))
-    
 }
 
 app.get('/', (request, response) => {
@@ -67,15 +87,17 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = Number(request.params.id)
-    const person = persons.find(person => person.id === id)
-    if(person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id).then(
+        person => {
+            if(person) {
+                response.json(person)
+            } else {
+                response.status(404).end()
+            }
+        }).catch(error => next(error))
 })
+
 
 app.post('/api/persons/', (request, response)=> {
     const pname = request.body.name
@@ -90,6 +112,21 @@ app.post('/api/persons/', (request, response)=> {
         console.log('entry saved to databse')
     })                
 })
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+  
+    const person = {
+      name: body.name,
+      number: body.number,
+    }
+  
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+      .then(updatedPerson => {
+        response.json(updatedPerson)
+      })
+      .catch(error => next(error))
+  })
 
 app.delete('/api/persons/:id', (request, response) => {
     Person.findByIdAndRemove(request.params.id).then(result=>{
