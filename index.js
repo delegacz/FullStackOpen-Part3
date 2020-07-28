@@ -36,38 +36,6 @@ const errorHandler = (error, request, response, next) => {
 app.use(errorHandler)
 
 
-/*Checking for if user exists in db*/
-const alreadyExist = (name, request) => {
-    if(name===request.body.name) {
-        console.log(request.body.name, 'exists')
-        return true
-    }else{
-        return false
-    }
-}
-/*let persons = [
-    { 
-        "name": "Arto Hellas", 
-        "number": "040-123456",
-        "id": 1
-      },
-      { 
-        "name": "Ada Lovelace", 
-        "number": "39-44-5323523",
-        "id": 2
-      },
-      { 
-        "name": "Dan Abramov", 
-        "number": "12-43-234345",
-        "id": 3
-      },
-      { 
-        "name": "Mary Poppendieck", 
-        "number": "39-23-6423122",
-        "id": 4
-      }
-]
-*/
 const generateID = () => {
     return Math.floor(Math.random()*Math.floor(10000))
 }
@@ -77,8 +45,11 @@ app.get('/', (request, response) => {
 })
 
 app.get('/info', (request, response) => {
-    let date = new Date()
-    response.send(`Phonebook has records for ${persons.length} people <br> ${date}`)
+    Person.find().exec(function (err, results) {
+        let date = new Date()
+        var count = results.length
+        response.send(`Phonebook has records for ${count} people <br> ${date}`)
+    });   
 })
 
 app.get('/api/persons', (request, response) => {
