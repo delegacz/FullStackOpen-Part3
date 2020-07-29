@@ -1,10 +1,10 @@
 
 
-POST  http://localhost:3001/info
+POST   http://localhost:3001/api/persons/
 Content-Type: application/json
 
-{
-    name:"x221x",
-    number: "asdasd"
-
-}
+  {
+    "name": "Bonifacy Zjebany",
+    "number": "072311212 22332",
+    "id": "5f1da34bf4291409502a6033"
+  }
